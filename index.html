@@ -1,0 +1,682 @@
+Aquí tienes el código completo de la aplicación para tu proyecto de investigación sobre el estrés académico, con todas las funcionalidades solicitadas.
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ZenMind - Gestión del Estrés Académico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #cde9f5 0%, #a8d0e0 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-container {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 40, 60, 0.25);
+            overflow: hidden;
+        }
+
+        .screen {
+            padding: 2rem;
+        }
+        .hidden { display: none; }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0f5c7a, #1b8fb0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0a5e7a;
+            border-left: 5px solid #2a9d8f;
+            padding-left: 1rem;
+            margin-bottom: 1.2rem;
+        }
+        h3 {
+            font-weight: 600;
+            color: #116b7c;
+            margin: 0.8rem 0;
+        }
+
+        .input-group { margin-bottom: 1.2rem; }
+        label { font-weight: 600; color: #16697a; display: block; margin-bottom: 0.4rem; font-size: 0.85rem; }
+        input, select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 2rem;
+            border: 2px solid #cde3ec;
+            background: white;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        input:focus { border-color: #2a9d8f; box-shadow: 0 0 0 3px rgba(42,157,143,0.2); }
+        .btn {
+            background: #1f7f8c;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 3rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        .btn:hover { background: #0f6273; transform: translateY(-2px); }
+        .warning-text { font-size: 0.7rem; color: #2c7a6e; margin-top: 0.2rem; }
+        .link-login { text-align: center; margin-top: 1rem; font-size: 0.85rem; color: #1f7f8c; cursor: pointer; font-weight: 600; }
+
+        /* Burbujas síntomas */
+        .bubble-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+        .bubble {
+            background: linear-gradient(125deg, #c9e9f5, #aad0e0);
+            padding: 0.8rem 1.3rem;
+            border-radius: 100px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #03506f;
+            border: 1px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .bubble.selected {
+            background: linear-gradient(125deg, #2a9d8f, #238b7a);
+            color: white;
+            border-color: #fff;
+        }
+        .bubble:hover { transform: translateY(-3px); background: #b4dfee; }
+        
+        .selection-panel {
+            background: #eef7fc;
+            border-radius: 1.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        .btn-combine {
+            background: #2a9d8f;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin: 0.3rem;
+        }
+        .result-card {
+            background: #e2f3f9;
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            margin-top: 1rem;
+            border-left: 7px solid #2a9d8f;
+        }
+        .tecnicas-box {
+            background: white;
+            border-radius: 1rem;
+            padding: 0.8rem;
+            margin-top: 0.8rem;
+        }
+
+        /* Topbar y Sidebar */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffffdd;
+            padding: 0.8rem 1.8rem;
+            border-bottom: 1px solid #b9dfec;
+            margin-bottom: 1rem;
+        }
+        .menu-icon {
+            font-size: 1.6rem;
+            cursor: pointer;
+            background: #e5f2f7;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+            color: #1b6f85;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -380px;
+            width: 340px;
+            height: 100vh;
+            background: #fefefeef;
+            backdrop-filter: blur(14px);
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: left 0.3s ease;
+            padding: 1.5rem;
+            overflow-y: auto;
+            border-right: 2px solid #b1dbec;
+        }
+        .sidebar.open { left: 0; }
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+            display: none;
+        }
+        .overlay.show { display: block; }
+        .close-side { text-align: right; font-size: 1.4rem; cursor: pointer; margin-bottom: 1rem; color: #1f7f8c; }
+        .profile-card {
+            text-align: center;
+            margin-bottom: 1.8rem;
+            border-bottom: 2px solid #cae9f2;
+            padding-bottom: 1rem;
+        }
+        .avatar {
+            width: 85px;
+            height: 85px;
+            background: #cbe5ef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.8rem;
+            font-size: 2.5rem;
+            color: #16697a;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .btn-small {
+            background: #4797aa;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .cal-dias {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            text-align: center;
+        }
+        .cal-dia {
+            background: white;
+            border-radius: 40px;
+            padding: 0.6rem 0;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #cbe2ec;
+        }
+        .cal-dia.selected { background: #2a9d8f; color: white; }
+        .tareas-lista { max-height: 200px; overflow-y: auto; margin-top: 0.8rem; }
+        .tarea-item {
+            background: white;
+            border-radius: 1rem;
+            padding: 0.6rem;
+            margin: 0.5rem 0;
+            border-left: 5px solid;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000000aa;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+        }
+        .modal-content {
+            background: white;
+            max-width: 400px;
+            width: 90%;
+            border-radius: 2rem;
+            padding: 1.5rem;
+        }
+        .flex-btns { display: flex; gap: 0.6rem; margin-top: 0.5rem; }
+        .historial-item {
+            background: #e6f4fa;
+            border-radius: 1rem;
+            padding: 0.6rem;
+            margin: 0.6rem 0;
+            font-size: 0.75rem;
+        }
+        @media (max-width: 680px) {
+            .screen { padding: 1.2rem; }
+            .bubble { font-size: 0.75rem; padding: 0.5rem 1rem; }
+            .sidebar { width: 280px; left: -300px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- Pantalla Autenticación -->
+    <div id="screenAuth" class="screen">
+        <div style="text-align:center;"><h1>📘 ZenMind · Estrés Académico</h1><p>Proyecto de investigación | Manejo del estrés</p></div>
+        <div id="authPanel">
+            <h2 id="authTitle">Registro</h2>
+            <form id="authForm">
+                <div id="regFields">
+                    <div class="input-group"><label>Nombre</label><input type="text" id="regNombre" placeholder="Nombre" required></div>
+                    <div class="input-group"><label>Apellido</label><input type="text" id="regApellido" placeholder="Apellido" required></div>
+                    <div class="input-group"><label>Correo</label><input type="email" id="regEmail" placeholder="correo@ejemplo.com" required></div>
+                    <div class="input-group"><label>Contraseña</label><input type="password" id="regPass" placeholder="Mínimo 8 caracteres" required></div>
+                    <div class="warning-text">🔐 La contraseña debe tener mínimo 8 dígitos.</div>
+                </div>
+                <div id="loginFields" style="display:none;">
+                    <div class="input-group"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="tu@correo.com" required></div>
+                    <div class="input-group"><label>Contraseña</label><input type="password" id="loginPass" placeholder="Contraseña" required></div>
+                </div>
+                <button class="btn" type="submit" id="authSubmitBtn">Registrarse</button>
+            </form>
+            <div class="link-login" id="toggleAuthLink">¿Ya tienes cuenta? Inicia sesión</div>
+        </div>
+    </div>
+
+    <!-- Pantalla Info Estrés -->
+    <div id="screenStress" class="screen hidden">
+        <h2>🧠 ¿Qué es el estrés académico?</h2>
+        <div style="background:#e1f0f5; border-radius:1.5rem; padding:1rem; margin:1rem 0">
+            <p>Es la respuesta física y emocional ante exigencias educativas: exámenes, plazos, carga de trabajos.</p>
+            <h3>🌱 Pasos para calmarlo:</h3>
+            <ul><li>✔ Técnica de respiración 4-7-8</li><li>✔ Dividir tareas en micro-objetivos</li><li>✔ Descansos activos cada 45 min</li><li>✔ Dormir 7-8h</li><li>✔ Practicar atención plena</li></ul>
+        </div>
+        <button class="btn" id="goToMainBtn">🚀 Seguir y entrar al menú principal</button>
+    </div>
+
+    <!-- Pantalla Principal -->
+    <div id="screenMain" class="screen hidden">
+        <div class="topbar">
+            <div class="menu-icon" id="menuIcon"><i class="fas fa-bars"></i></div>
+            <h1 style="font-size:1.5rem;">✨ Centro de Bienestar</h1>
+            <div style="width:40px;"></div>
+        </div>
+        <h2>Selecciona tus síntomas (puedes elegir varios)</h2>
+        <div class="bubble-grid" id="bubbleGrid">
+            <div class="bubble" data-symptom="dolor_cabeza">🤕 Dolor de cabeza</div>
+            <div class="bubble" data-symptom="insomnio">😴 Insomnio</div>
+            <div class="bubble" data-symptom="irritabilidad">😤 Irritabilidad</div>
+            <div class="bubble" data-symptom="concentracion">🎯 Concentración</div>
+            <div class="bubble" data-symptom="desmotivacion">📉 Desmotivación</div>
+            <div class="bubble" data-symptom="ansiedad">🌀 Ansiedad</div>
+        </div>
+        <div class="selection-panel">
+            <button class="btn-combine" id="combineSymptomsBtn">🔍 Ver información combinada</button>
+            <button class="btn-combine" id="clearSymptomsBtn" style="background:#6c9eb0;">🗑️ Limpiar selección</button>
+        </div>
+        <div id="resultSymptoms" class="result-card"><p>💡 Toca las burbujas para seleccionar 1, 2 o más síntomas. Luego presiona "Ver información combinada".</p></div>
+    </div>
+</div>
+
+<!-- SIDEBAR (3 rayitas) con perfil, calendario, tareas -->
+<div id="sidebar" class="sidebar">
+    <div class="close-side" id="closeSidebar"><i class="fas fa-times"></i></div>
+    <div class="profile-card">
+        <div class="avatar" id="avatarSelector"><i class="fas fa-user-circle"></i><input type="file" id="avatarUpload" accept="image/*" style="display:none"></div>
+        <div class="user-name-side" id="sidebarUserName">Usuario</div>
+        <input type="text" id="editUserNameSide" placeholder="Nuevo nombre" style="margin-top:8px; font-size:0.8rem;">
+        <button class="btn-small" id="saveNameSide" style="margin-top:5px; width:100%;">Guardar nombre</button>
+    </div>
+    <h3><i class="far fa-calendar-alt"></i> Calendario 2026-2027</h3>
+    <div class="calendar-panel">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <button class="btn-small" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+            <span id="monthYear" style="font-weight:700;"></span>
+            <button class="btn-small" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="cal-dias" id="calendarGrid"></div>
+        <div style="margin-top:1rem">
+            <h4>📋 Tareas / Eventos</h4>
+            <div id="dayTasksList" class="tareas-lista"></div>
+            <button class="btn-small" id="openTaskBtn" style="width:100%; margin-top:0.5rem;">+ Agregar tarea</button>
+        </div>
+    </div>
+    <h3 style="margin-top:1.5rem;">📜 Historial reciente</h3>
+    <div id="historySidebar"></div>
+</div>
+<div id="overlay" class="overlay"></div>
+
+<!-- Modal para tareas con opción de días de anticipación -->
+<div id="taskModal" class="modal">
+    <div class="modal-content">
+        <h3>📌 Nueva tarea / evento / cumpleaños</h3>
+        <div class="input-group"><label>Nombre</label><input type="text" id="taskNameModal" placeholder="Ej: Entregar proyecto"></div>
+        <div class="input-group"><label>Fecha límite</label><input type="date" id="taskDateModal"></div>
+        <div class="input-group"><label>Color</label><input type="color" id="taskColorModal" value="#2a9d8f"></div>
+        <div class="input-group"><label>¿Recibir notificación?</label>
+            <select id="taskNotifyModal">
+                <option value="si">✅ Sí, quiero notificación</option>
+                <option value="no">❌ No, gracias</option>
+            </select>
+        </div>
+        <div class="input-group"><label>Notificarme con anticipación de (días):</label>
+            <select id="taskNotifyDaysModal">
+                <option value="1">1 día antes</option>
+                <option value="2" selected>2 días antes</option>
+                <option value="3">3 días antes</option>
+                <option value="5">5 días antes</option>
+                <option value="7">1 semana antes</option>
+            </select>
+        </div>
+        <div class="flex-btns"><button class="btn" id="confirmTaskBtn">Guardar</button><button class="btn" id="closeModalBtn" style="background:#aac9d4;">Cancelar</button></div>
+    </div>
+</div>
+
+<script>
+    // ======================== SISTEMA DE USUARIOS ========================
+    let users = JSON.parse(localStorage.getItem("academicUsers")) || [];
+    let currentUserId = localStorage.getItem("currentUserId") || null;
+    function saveUsers() { localStorage.setItem("academicUsers", JSON.stringify(users)); }
+
+    // Elementos DOM
+    const screenAuth = document.getElementById("screenAuth");
+    const screenStress = document.getElementById("screenStress");
+    const screenMain = document.getElementById("screenMain");
+    let isLoginMode = false;
+    const toggleLink = document.getElementById("toggleAuthLink");
+    const regFields = document.getElementById("regFields");
+    const loginFields = document.getElementById("loginFields");
+    const authSubmitBtn = document.getElementById("authSubmitBtn");
+    const authTitle = document.getElementById("authTitle");
+
+    function updateAuthUI() {
+        if(isLoginMode) {
+            authTitle.innerText = "Iniciar Sesión";
+            regFields.style.display = "none";
+            loginFields.style.display = "block";
+            authSubmitBtn.innerText = "Ingresar";
+            toggleLink.innerText = "¿No tienes cuenta? Regístrate";
+        } else {
+            authTitle.innerText = "Registro";
+            regFields.style.display = "block";
+            loginFields.style.display = "none";
+            authSubmitBtn.innerText = "Registrarse";
+            toggleLink.innerText = "¿Ya tienes cuenta? Inicia sesión";
+        }
+    }
+    toggleLink.addEventListener("click", () => { isLoginMode = !isLoginMode; updateAuthUI(); });
+
+    function showScreen(screenId) {
+        screenAuth.classList.add("hidden");
+        screenStress.classList.add("hidden");
+        screenMain.classList.add("hidden");
+        if(screenId === "auth") screenAuth.classList.remove("hidden");
+        if(screenId === "stress") screenStress.classList.remove("hidden");
+        if(screenId === "main") screenMain.classList.remove("hidden");
+    }
+
+    // Auth submit
+    document.getElementById("authForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        if(!isLoginMode) {
+            const nombre = document.getElementById("regNombre").value.trim();
+            const apellido = document.getElementById("regApellido").value.trim();
+            const email = document.getElementById("regEmail").value.trim();
+            const pass = document.getElementById("regPass").value;
+            if(!nombre || !apellido || !email || !pass) { alert("Completa todos los campos"); return; }
+            if(pass.length < 8) { alert("La contraseña debe tener mínimo 8 dígitos."); return; }
+            if(users.find(u => u.email === email)) { alert("Correo ya registrado. Inicia sesión."); return; }
+            const newUser = { id: Date.now(), nombre, apellido, email, password: pass, tasks: [], history: [], avatar: null };
+            users.push(newUser); saveUsers();
+            currentUserId = newUser.id; localStorage.setItem("currentUserId", currentUserId);
+            alert("Registro exitoso");
+            showScreen("stress");
+        } else {
+            const loginEmail = document.getElementById("loginEmail").value.trim();
+            const loginPass = document.getElementById("loginPass").value;
+            const userFound = users.find(u => u.email === loginEmail && u.password === loginPass);
+            if(userFound) {
+                currentUserId = userFound.id; localStorage.setItem("currentUserId", currentUserId);
+                alert(`Bienvenido ${userFound.nombre}`);
+                loadUserData(); showScreen("main"); renderMainAfterLogin();
+            } else { alert("Credenciales incorrectas"); }
+        }
+    });
+
+    function checkAutoLogin() {
+        if(currentUserId && users.find(u=>u.id==currentUserId)) {
+            loadUserData(); showScreen("main"); renderMainAfterLogin(); return true;
+        } return false;
+    }
+
+    // Datos usuario
+    let currentUserTasks = [], currentUserHistory = [];
+    let selectedDate = new Date();
+    let currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
+
+    function loadUserData() {
+        const user = users.find(u=>u.id==currentUserId);
+        if(user) {
+            currentUserTasks = user.tasks || [];
+            currentUserHistory = user.history || [];
+            document.getElementById("sidebarUserName").innerText = `${user.nombre} ${user.apellido}`;
+            document.getElementById("editUserNameSide").value = user.nombre;
+            if(user.avatar) document.getElementById("avatarSelector").innerHTML = `<img src="${user.avatar}" style="width:100%;border-radius:50%;">`;
+            else document.getElementById("avatarSelector").innerHTML = `<i class="fas fa-user-circle"></i>`;
+            renderHistorySidebar();
+            cleanExpiredTasks(); // Eliminar tareas vencidas automáticamente
+        }
+    }
+
+    // ELIMINACIÓN AUTOMÁTICA DE TAREAS CUANDO LA FECHA HA PASADO
+    function cleanExpiredTasks() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let changed = false;
+        const beforeCount = currentUserTasks.length;
+        currentUserTasks = currentUserTasks.filter(task => {
+            const taskDate = new Date(task.date);
+            taskDate.setHours(0, 0, 0, 0);
+            if (taskDate < today) {
+                addHistoryEntry(`⏰ Tarea "${task.name}" (${task.date}) expiró y fue eliminada automáticamente`);
+                changed = true;
+                return false;
+            }
+            return true;
+        });
+        if (changed) {
+            saveCurrentUserData();
+            renderTasksForDate(selectedDate);
+            renderCalendar();
+        }
+    }
+
+    function saveCurrentUserData() {
+        const idx = users.findIndex(u=>u.id==currentUserId);
+        if(idx!==-1) { users[idx].tasks = currentUserTasks; users[idx].history = currentUserHistory; saveUsers(); }
+    }
+    function addHistoryEntry(msg) {
+        currentUserHistory.unshift({ msg, date: new Date().toLocaleString() });
+        if(currentUserHistory.length>20) currentUserHistory.pop();
+        saveCurrentUserData(); renderHistorySidebar();
+    }
+    function renderHistorySidebar() {
+        const histDiv = document.getElementById("historySidebar");
+        if(!currentUserHistory.length) { histDiv.innerHTML = "<p>Sin actividad reciente</p>"; return; }
+        histDiv.innerHTML = currentUserHistory.slice(0,8).map(h=>`<div class="historial-item">📌 ${h.msg}<br><small>${h.date}</small></div>`).join("");
+    }
+
+    // Calendario y tareas
+    function renderCalendar() {
+        let firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        let daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
+        let grid = document.getElementById("calendarGrid");
+        grid.innerHTML = "";
+        ["L","M","M","J","V","S","D"].forEach(d=>{ let c=document.createElement("div"); c.innerText=d; c.style.fontWeight="bold"; grid.appendChild(c); });
+        let startOffset = (firstDay+6)%7;
+        for(let i=0;i<startOffset;i++){ let e=document.createElement("div"); grid.appendChild(e); }
+        for(let d=1; d<=daysInMonth; d++){
+            let cell=document.createElement("div"); cell.classList.add("cal-dia"); cell.innerText=d;
+            let dateObj = new Date(currentYear, currentMonth, d);
+            if(selectedDate && selectedDate.toDateString()===dateObj.toDateString()) cell.classList.add("selected");
+            cell.addEventListener("click",()=>{
+                document.querySelectorAll(".cal-dia").forEach(el=>el.classList.remove("selected"));
+                cell.classList.add("selected");
+                selectedDate = dateObj;
+                renderTasksForDate(selectedDate);
+            });
+            grid.appendChild(cell);
+        }
+        document.getElementById("monthYear").innerText = new Date(currentYear, currentMonth).toLocaleDateString('es',{month:'long',year:'numeric'});
+    }
+    function renderTasksForDate(date) {
+        let dateStr = date.toISOString().split('T')[0];
+        let tasks = currentUserTasks.filter(t=>t.date===dateStr);
+        let container = document.getElementById("dayTasksList");
+        if(!tasks.length){ container.innerHTML="<p>📭 Sin tareas este día.</p>"; return; }
+        container.innerHTML = tasks.map(t=>`<div class="tarea-item" style="border-left-color:${t.color};"><div><strong>${t.name}</strong><br><span>📅 ${t.date}</span> ${t.notify==='si'?`🔔 Notif ${t.notifyDays} día(s) antes`:'🔕'}</div><button class="btn-small" data-id="${t.id}" style="background:#cfdfe8;">🗑️</button></div>`).join("");
+        document.querySelectorAll("[data-id]").forEach(btn=>{
+            btn.addEventListener("click",(e)=>{
+                let id = parseInt(btn.getAttribute("data-id"));
+                currentUserTasks = currentUserTasks.filter(t=>t.id!==id);
+                saveCurrentUserData();
+                addHistoryEntry(`🗑️ Tarea eliminada manualmente`);
+                renderTasksForDate(selectedDate);
+                renderCalendar();
+            });
+        });
+    }
+    function addTask(name, date, color, notify, notifyDays) {
+        if(!name||!date){ alert("Nombre y fecha requeridos"); return false; }
+        let newId = Date.now();
+        let newTask = { id:newId, name, date, color, notify, notifyDays: parseInt(notifyDays), notifiedFlag:false, createdAt:new Date().toISOString() };
+        currentUserTasks.push(newTask);
+        saveCurrentUserData();
+        addHistoryEntry(`📌 Tarea agregada: "${name}" para ${date} (Notif ${notifyDays} días antes)`);
+        renderTasksForDate(selectedDate);
+        renderCalendar();
+        if(notify==='si') scheduleNotification(newTask);
+        return true;
+    }
+    function scheduleNotification(task) {
+        if(Notification.permission !== "granted") return;
+        let dueDate = new Date(task.date);
+        let notifyDate = new Date(dueDate);
+        notifyDate.setDate(dueDate.getDate() - task.notifyDays);
+        let now = new Date();
+        let timeDiff = notifyDate.getTime() - now.getTime();
+        if(timeDiff > 0) {
+            setTimeout(() => {
+                new Notification("📚 Recordatorio anticipado", { body: `"${task.name}" vence en ${task.notifyDays} día(s) (${task.date})` });
+                addHistoryEntry(`🔔 Notificación enviada: "${task.name}" (${task.notifyDays} días antes)`);
+            }, timeDiff);
+        }
+    }
+    function requestNotifPerm() { if("Notification" in window && Notification.permission !== "granted") Notification.requestPermission(); }
+
+    // ======================== SÍNTOMAS COMBINADOS ========================
+    const symptomDB = {
+        dolor_cabeza: { nom:"Dolor de cabeza", explicacion:"El estrés académico genera tensión muscular en cuello y hombros, provocando cefaleas tensionales.", calmarlo:"Aplica compresas frías, estira el cuello y toma descansos visuales.", respiracion:"🌊 Respiración diafragmática: inhala 4s, sostén 2s, exhala 6s (8 ciclos).", consejo:"📌 Usa la regla 20-20-20: cada 20 min mira a 20 pies por 20 segundos." },
+        insomnio: { nom:"Insomnio", explicacion:"La preocupación por exámenes y plazos activa la mente en la noche, impidiendo conciliar el sueño.", calmarlo:"Establece una rutina de sueño fija y evita pantallas 1 hora antes.", respiracion:"🌙 Técnica 4-7-8: inhala 4s, retén 7s, exhala 8s. 6 ciclos.", consejo:"📌 Escribe tus pendientes antes de dormir para 'descargar' la mente." },
+        irritabilidad: { nom:"Irritabilidad", explicacion:"La acumulación de estrés reduce tu tolerancia a frustraciones, volviéndote más reactivo.", calmarlo:"Practica pausas de 5 minutos entre tareas y escucha música relajante.", respiracion:"😌 Respiración alterna: tapa fosa derecha, inhala izquierda 4s, cambia y exhala 4s (5 min).", consejo:"📌 Sal a caminar 10 minutos cuando sientas ira." },
+        concentracion: { nom:"Falta de concentración", explicacion:"El cortisol elevado afecta la memoria de trabajo y la capacidad de foco.", calmarlo:"Divide el estudio en bloques de 25 min (Pomodoro).", respiracion:"🎯 Box breathing: inhala 4s, retén 4s, exhala 4s, retén 4s (6 ciclos).", consejo:"📌 Elimina distracciones: usa apps de bloqueo de redes." },
+        desmotivacion: { nom:"Desmotivación", explicacion:"El agotamiento emocional por sobrecarga te hace sentir que nada vale la pena.", calmarlo:"Celebra pequeños logros y cambia de ambiente de estudio.", respiracion:"💪 Respiración energizante: inhala 3s, exhala con fuerza 1s (10 veces).", consejo:"📌 Escribe 3 cosas buenas que lograste hoy." },
+        ansiedad: { nom:"Ansiedad", explicacion:"Pensamientos catastróficos sobre el rendimiento generan palpitaciones y nerviosismo.", calmarlo:"Practica mindfulness y acepta que no todo es perfecto.", respiracion:"🌬️ 5-5-5: inhala 5s, sostén 5s, exhala 5s (5 minutos).", consejo:"📌 Haz una lista de 'lo que sí controlas' vs 'lo que no'." }
+    };
+    let selectedSymptoms = [];
+    function renderCombinedSymptoms() {
+        if(selectedSymptoms.length===0){ document.getElementById("resultSymptoms").innerHTML="<p>💡 Selecciona al menos un síntoma.</p>"; return; }
+        let html = `<strong>🧘 Síntomas seleccionados (${selectedSymptoms.length}):</strong> ${selectedSymptoms.map(s=>symptomDB[s].nom).join(", ")}<br>`;
+        selectedSymptoms.forEach(sym=>{
+            let data = symptomDB[sym];
+            html += `<div style="margin-top:1rem; border-top:1px solid #b9dfec; padding-top:0.8rem;">
+                        <b>📖 ${data.nom}</b>
+                        <p><strong>🤔 ¿Por qué ocurre?</strong> ${data.explicacion}</p>
+                        <p><strong>🌸 ¿Cómo calmarlo?</strong> ${data.calmarlo}</p>
+                        <div class="tecnicas-box"><strong>🧘 Método de respiración:</strong> ${data.respiracion}</div>
+                        <p><strong>💡 Consejo para prevenirlo:</strong> ${data.consejo}</p>
+                     </div>`;
+        });
+        document.getElementById("resultSymptoms").innerHTML = html;
+    }
+    function updateBubbleSelection() {
+        document.querySelectorAll(".bubble").forEach(b=>{
+            let sym = b.getAttribute("data-symptom");
+            if(selectedSymptoms.includes(sym)) b.classList.add("selected");
+            else b.classList.remove("selected");
+        });
+    }
+    document.querySelectorAll(".bubble").forEach(b=>{
+        b.addEventListener("click",()=>{
+            let sym = b.getAttribute("data-symptom");
+            if(selectedSymptoms.includes(sym)) selectedSymptoms = selectedSymptoms.filter(s=>s!==sym);
+            else selectedSymptoms.push(sym);
+            updateBubbleSelection();
+        });
+    });
+    document.getElementById("combineSymptomsBtn")?.addEventListener("click", renderCombinedSymptoms);
+    document.getElementById("clearSymptomsBtn")?.addEventListener("click",()=>{ selectedSymptoms=[]; updateBubbleSelection(); document.getElementById("resultSymptoms").innerHTML="<p>💡 Selecciona síntomas y presiona 'Ver información combinada'.</p>"; });
+
+    // ======================== EVENTOS GENERALES ========================
+    function renderMainAfterLogin() { renderCalendar(); renderTasksForDate(new Date()); loadUserData(); cleanExpiredTasks(); }
+    document.getElementById("goToMainBtn")?.addEventListener("click",()=>{ showScreen("main"); renderMainAfterLogin(); });
+    document.getElementById("menuIcon")?.addEventListener("click",()=>{ document.getElementById("sidebar").classList.add("open"); document.getElementById("overlay").classList.add("show"); });
+    document.getElementById("closeSidebar")?.addEventListener("click",()=>{ document.getElementById("sidebar").classList.remove("open"); document.getElementById("overlay").classList.remove("show"); });
+    document.getElementById("overlay")?.addEventListener("click",()=>{ document.getElementById("sidebar").classList.remove("open"); document.getElementById("overlay").classList.remove("show"); });
+    document.getElementById("prevMonth")?.addEventListener("click",()=>{ currentMonth--; if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(); renderTasksForDate(selectedDate); });
+    document.getElementById("nextMonth")?.addEventListener("click",()=>{ currentMonth++; if(currentMonth>11){currentMonth=0;currentYear++;} renderCalendar(); renderTasksForDate(selectedDate); });
+    document.getElementById("openTaskBtn")?.addEventListener("click",()=>{ document.getElementById("taskModal").style.display="flex"; document.getElementById("taskDateModal").value=selectedDate.toISOString().split('T')[0]; });
+    document.getElementById("closeModalBtn")?.addEventListener("click",()=>{ document.getElementById("taskModal").style.display="none"; });
+    document.getElementById("confirmTaskBtn")?.addEventListener("click",()=>{
+        let name = document.getElementById("taskNameModal").value;
+        let date = document.getElementById("taskDateModal").value;
+        let color = document.getElementById("taskColorModal").value;
+        let notify = document.getElementById("taskNotifyModal").value;
+        let notifyDays = document.getElementById("taskNotifyDaysModal").value;
+        if(addTask(name,date,color,notify,notifyDays)){ document.getElementById("taskModal").style.display="none"; document.getElementById("taskNameModal").value=""; }
+    });
+    document.getElementById("avatarSelector")?.addEventListener("click",()=>{ document.getElementById("avatarUpload").click(); });
+    document.getElementById("avatarUpload")?.addEventListener("change",(e)=>{
+        let file=e.target.files[0];
+        if(file){ let reader=new FileReader(); reader.onload=(ev)=>{ let idx=users.findIndex(u=>u.id==currentUserId); if(idx!==-1){ users[idx].avatar=ev.target.result; saveUsers(); loadUserData(); addHistoryEntry("🖼️ Foto actualizada"); } }; reader.readAsDataURL(file); }
+    });
+    document.getElementById("saveNameSide")?.addEventListener("click",()=>{
+        let newName=document.getElementById("editUserNameSide").value.trim();
+        if(newName){ let idx=users.findIndex(u=>u.id==currentUserId); if(idx!==-1){ users[idx].nombre=newName; saveUsers(); loadUserData(); addHistoryEntry(`✏️ Nombre cambiado a ${newName}`); } }
+    });
+    requestNotifPerm();
+    if(!checkAutoLogin()){ showScreen("auth"); updateAuthUI(); }
+    // Revisar tareas expiradas cada minuto
+    setInterval(()=>{ cleanExpiredTasks(); }, 60000);
+</script>
+</body>
+</html>
+```
