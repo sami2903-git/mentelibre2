@@ -400,7 +400,7 @@
 
 <script>
     // ======================== SISTEMA DE USUARIOS ========================
-    let users = JSON.parse(localStorage.getItem("academicUsers")) || [];
+    let users = JSON.parse(localStorage.getItem("academicUsers") || "[]");
     let currentUserId = localStorage.getItem("currentUserId") || null;
     function saveUsers() { localStorage.setItem("academicUsers", JSON.stringify(users)); }
 
@@ -433,49 +433,84 @@
     toggleLink.addEventListener("click", () => { isLoginMode = !isLoginMode; updateAuthUI(); });
 
     function showScreen(screenId) {
+        console.log("Mostrando pantalla:", screenId);
         screenAuth.classList.add("hidden");
         screenStress.classList.add("hidden");
         screenMain.classList.add("hidden");
         if(screenId === "auth") screenAuth.classList.remove("hidden");
-        if(screenId === "stress") screenStress.classList.remove("hidden");
-        if(screenId === "main") screenMain.classList.remove("hidden");
+        else if(screenId === "stress") screenStress.classList.remove("hidden");
+        else if(screenId === "main") screenMain.classList.remove("hidden");
+        else console.error("Pantalla no válida:", screenId);
     }
 
-    // Auth submit
+    // Auth submit - CORREGIDO Y CON DEPURACIÓN
     document.getElementById("authForm").addEventListener("submit", (e) => {
         e.preventDefault();
+        console.log("Formulario enviado. Modo login:", isLoginMode);
         if(!isLoginMode) {
+            // Registro
             const nombre = document.getElementById("regNombre").value.trim();
             const apellido = document.getElementById("regApellido").value.trim();
             const email = document.getElementById("regEmail").value.trim();
             const pass = document.getElementById("regPass").value;
-            if(!nombre || !apellido || !email || !pass) { alert("Completa todos los campos"); return; }
-            if(pass.length < 8) { alert("La contraseña debe tener mínimo 8 dígitos."); return; }
-            if(users.find(u => u.email === email)) { alert("Correo ya registrado. Inicia sesión."); return; }
-            const newUser = { id: Date.now(), nombre, apellido, email, password: pass, tasks: [], history: [], avatar: null };
-            users.push(newUser); saveUsers();
-            currentUserId = newUser.id; localStorage.setItem("currentUserId", currentUserId);
+            if(!nombre || !apellido || !email || !pass) {
+                alert("Completa todos los campos");
+                return;
+            }
+            if(pass.length < 8) {
+                alert("La contraseña debe tener mínimo 8 dígitos.");
+                return;
+            }
+            if(users.find(u => u.email === email)) {
+                alert("Correo ya registrado. Inicia sesión.");
+                return;
+            }
+            const newUser = { 
+                id: Date.now(), 
+                nombre, 
+                apellido, 
+                email, 
+                password: pass, 
+                tasks: [], 
+                history: [], 
+                avatar: null 
+            };
+            users.push(newUser);
+            saveUsers();
+            currentUserId = newUser.id;
+            localStorage.setItem("currentUserId", currentUserId);
             alert("Registro exitoso");
+            console.log("Registro exitoso. Mostrando pantalla stress");
             showScreen("stress");
         } else {
+            // Login
             const loginEmail = document.getElementById("loginEmail").value.trim();
             const loginPass = document.getElementById("loginPass").value;
             const userFound = users.find(u => u.email === loginEmail && u.password === loginPass);
             if(userFound) {
-                currentUserId = userFound.id; localStorage.setItem("currentUserId", currentUserId);
+                currentUserId = userFound.id;
+                localStorage.setItem("currentUserId", currentUserId);
                 alert(`Bienvenido ${userFound.nombre}`);
-                loadUserData(); showScreen("main"); renderMainAfterLogin();
-            } else { alert("Credenciales incorrectas"); }
+                loadUserData(); 
+                showScreen("main"); 
+                renderMainAfterLogin();
+            } else {
+                alert("Credenciales incorrectas");
+            }
         }
     });
 
     function checkAutoLogin() {
         if(currentUserId && users.find(u=>u.id==currentUserId)) {
-            loadUserData(); showScreen("main"); renderMainAfterLogin(); return true;
-        } return false;
+            loadUserData(); 
+            showScreen("main"); 
+            renderMainAfterLogin(); 
+            return true;
+        }
+        return false;
     }
 
-    // Datos usuario
+    // ======================== RESTO DE FUNCIONES (síntomas, calendario, tareas) ========================
     let currentUserTasks = [], currentUserHistory = [];
     let selectedDate = new Date();
     let currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
@@ -490,19 +525,17 @@
             if(user.avatar) document.getElementById("avatarSelector").innerHTML = `<img src="${user.avatar}" style="width:100%;border-radius:50%;">`;
             else document.getElementById("avatarSelector").innerHTML = `<i class="fas fa-user-circle"></i>`;
             renderHistorySidebar();
-            cleanExpiredTasks(); // Eliminar tareas vencidas automáticamente
+            cleanExpiredTasks();
         }
     }
 
-    // ELIMINACIÓN AUTOMÁTICA DE TAREAS CUANDO LA FECHA HA PASADO
     function cleanExpiredTasks() {
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        today.setHours(0,0,0,0);
         let changed = false;
-        const beforeCount = currentUserTasks.length;
         currentUserTasks = currentUserTasks.filter(task => {
             const taskDate = new Date(task.date);
-            taskDate.setHours(0, 0, 0, 0);
+            taskDate.setHours(0,0,0,0);
             if (taskDate < today) {
                 addHistoryEntry(`⏰ Tarea "${task.name}" (${task.date}) expiró y fue eliminada automáticamente`);
                 changed = true;
@@ -532,7 +565,6 @@
         histDiv.innerHTML = currentUserHistory.slice(0,8).map(h=>`<div class="historial-item">📌 ${h.msg}<br><small>${h.date}</small></div>`).join("");
     }
 
-    // Calendario y tareas
     function renderCalendar() {
         let firstDay = new Date(currentYear, currentMonth, 1).getDay();
         let daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
@@ -600,7 +632,7 @@
     }
     function requestNotifPerm() { if("Notification" in window && Notification.permission !== "granted") Notification.requestPermission(); }
 
-    // ======================== SÍNTOMAS COMBINADOS ========================
+    // Síntomas combinados
     const symptomDB = {
         dolor_cabeza: { nom:"Dolor de cabeza", explicacion:"El estrés académico genera tensión muscular en cuello y hombros, provocando cefaleas tensionales.", calmarlo:"Aplica compresas frías, estira el cuello y toma descansos visuales.", respiracion:"🌊 Respiración diafragmática: inhala 4s, sostén 2s, exhala 6s (8 ciclos).", consejo:"📌 Usa la regla 20-20-20: cada 20 min mira a 20 pies por 20 segundos." },
         insomnio: { nom:"Insomnio", explicacion:"La preocupación por exámenes y plazos activa la mente en la noche, impidiendo conciliar el sueño.", calmarlo:"Establece una rutina de sueño fija y evita pantallas 1 hora antes.", respiracion:"🌙 Técnica 4-7-8: inhala 4s, retén 7s, exhala 8s. 6 ciclos.", consejo:"📌 Escribe tus pendientes antes de dormir para 'descargar' la mente." },
@@ -643,7 +675,7 @@
     document.getElementById("combineSymptomsBtn")?.addEventListener("click", renderCombinedSymptoms);
     document.getElementById("clearSymptomsBtn")?.addEventListener("click",()=>{ selectedSymptoms=[]; updateBubbleSelection(); document.getElementById("resultSymptoms").innerHTML="<p>💡 Selecciona síntomas y presiona 'Ver información combinada'.</p>"; });
 
-    // ======================== EVENTOS GENERALES ========================
+    // Eventos generales
     function renderMainAfterLogin() { renderCalendar(); renderTasksForDate(new Date()); loadUserData(); cleanExpiredTasks(); }
     document.getElementById("goToMainBtn")?.addEventListener("click",()=>{ showScreen("main"); renderMainAfterLogin(); });
     document.getElementById("menuIcon")?.addEventListener("click",()=>{ document.getElementById("sidebar").classList.add("open"); document.getElementById("overlay").classList.add("show"); });
@@ -672,9 +704,7 @@
     });
     requestNotifPerm();
     if(!checkAutoLogin()){ showScreen("auth"); updateAuthUI(); }
-    // Revisar tareas expiradas cada minuto
     setInterval(()=>{ cleanExpiredTasks(); }, 60000);
 </script>
 </body>
 </html>
-```
