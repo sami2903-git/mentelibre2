@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>ZenMind - Gestión del Estrés Académico</title>
+    <title>REA - Reducción del Estrés Académico</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -286,27 +286,37 @@
 </head>
 <body>
 <div class="app-container">
-    <!-- Pantalla Autenticación -->
+    <!-- Pantalla Autenticación con dos formularios separados -->
     <div id="screenAuth" class="screen">
-        <div style="text-align:center;"><h1>📘 ZenMind · Estrés Académico</h1><p>Proyecto de investigación | Manejo del estrés</p></div>
-        <div id="authPanel">
-            <h2 id="authTitle">Registro</h2>
-            <form id="authForm">
-                <div id="regFields">
-                    <div class="input-group"><label>Nombre</label><input type="text" id="regNombre" placeholder="Nombre" required></div>
-                    <div class="input-group"><label>Apellido</label><input type="text" id="regApellido" placeholder="Apellido" required></div>
-                    <div class="input-group"><label>Correo</label><input type="email" id="regEmail" placeholder="correo@ejemplo.com" required></div>
-                    <div class="input-group"><label>Contraseña</label><input type="password" id="regPass" placeholder="Mínimo 8 caracteres" required></div>
-                    <div class="warning-text">🔐 La contraseña debe tener mínimo 8 dígitos.</div>
-                </div>
-                <div id="loginFields" style="display:none;">
-                    <div class="input-group"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="tu@correo.com" required></div>
-                    <div class="input-group"><label>Contraseña</label><input type="password" id="loginPass" placeholder="Contraseña" required></div>
-                </div>
-                <button class="btn" type="submit" id="authSubmitBtn">Registrarse</button>
-            </form>
-            <div class="link-login" id="toggleAuthLink">¿Ya tienes cuenta? Inicia sesión</div>
+        <div style="text-align:center;">
+            <h1>📘 REA · Reducción del Estrés Académico</h1>
+            <p>Proyecto de investigación | Manejo del estrés</p>
         </div>
+        
+        <!-- Formulario de Registro -->
+        <div id="registerPanel">
+            <h2>Registro</h2>
+            <form id="registerForm">
+                <div class="input-group"><label>Nombre</label><input type="text" id="regNombre" placeholder="Nombre" required></div>
+                <div class="input-group"><label>Apellido</label><input type="text" id="regApellido" placeholder="Apellido" required></div>
+                <div class="input-group"><label>Correo</label><input type="email" id="regEmail" placeholder="correo@ejemplo.com" required></div>
+                <div class="input-group"><label>Contraseña</label><input type="password" id="regPass" placeholder="Mínimo 8 caracteres" required></div>
+                <div class="warning-text">🔐 La contraseña debe tener mínimo 8 dígitos.</div>
+                <button class="btn" type="submit">Registrarse</button>
+            </form>
+        </div>
+
+        <!-- Formulario de Login -->
+        <div id="loginPanel" style="display: none;">
+            <h2>Iniciar Sesión</h2>
+            <form id="loginForm">
+                <div class="input-group"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="tu@correo.com" required></div>
+                <div class="input-group"><label>Contraseña</label><input type="password" id="loginPass" placeholder="Contraseña" required></div>
+                <button class="btn" type="submit">Ingresar</button>
+            </form>
+        </div>
+
+        <div class="link-login" id="toggleAuthLink">¿Ya tienes cuenta? Inicia sesión</div>
     </div>
 
     <!-- Pantalla Info Estrés -->
@@ -324,7 +334,7 @@
     <div id="screenMain" class="screen hidden">
         <div class="topbar">
             <div class="menu-icon" id="menuIcon"><i class="fas fa-bars"></i></div>
-            <h1 style="font-size:1.5rem;">✨ Centro de Bienestar</h1>
+            <h1 style="font-size:1.5rem;">✨ Centro de Bienestar REA</h1>
             <div style="width:40px;"></div>
         </div>
         <h2>Selecciona tus síntomas (puedes elegir varios)</h2>
@@ -372,7 +382,7 @@
 </div>
 <div id="overlay" class="overlay"></div>
 
-<!-- Modal para tareas con opción de días de anticipación -->
+<!-- Modal para tareas -->
 <div id="taskModal" class="modal">
     <div class="modal-content">
         <h3>📌 Nueva tarea / evento / cumpleaños</h3>
@@ -408,103 +418,92 @@
     const screenAuth = document.getElementById("screenAuth");
     const screenStress = document.getElementById("screenStress");
     const screenMain = document.getElementById("screenMain");
-    let isLoginMode = false;
+    const registerPanel = document.getElementById("registerPanel");
+    const loginPanel = document.getElementById("loginPanel");
     const toggleLink = document.getElementById("toggleAuthLink");
-    const regFields = document.getElementById("regFields");
-    const loginFields = document.getElementById("loginFields");
-    const authSubmitBtn = document.getElementById("authSubmitBtn");
-    const authTitle = document.getElementById("authTitle");
 
-    function updateAuthUI() {
-        if(isLoginMode) {
-            authTitle.innerText = "Iniciar Sesión";
-            regFields.style.display = "none";
-            loginFields.style.display = "block";
-            authSubmitBtn.innerText = "Ingresar";
+    let showingLogin = false;
+    function toggleForms() {
+        showingLogin = !showingLogin;
+        if (showingLogin) {
+            registerPanel.style.display = "none";
+            loginPanel.style.display = "block";
             toggleLink.innerText = "¿No tienes cuenta? Regístrate";
         } else {
-            authTitle.innerText = "Registro";
-            regFields.style.display = "block";
-            loginFields.style.display = "none";
-            authSubmitBtn.innerText = "Registrarse";
+            registerPanel.style.display = "block";
+            loginPanel.style.display = "none";
             toggleLink.innerText = "¿Ya tienes cuenta? Inicia sesión";
         }
     }
-    toggleLink.addEventListener("click", () => { isLoginMode = !isLoginMode; updateAuthUI(); });
+    toggleLink.addEventListener("click", toggleForms);
 
     function showScreen(screenId) {
-        console.log("Mostrando pantalla:", screenId);
         screenAuth.classList.add("hidden");
         screenStress.classList.add("hidden");
         screenMain.classList.add("hidden");
         if(screenId === "auth") screenAuth.classList.remove("hidden");
         else if(screenId === "stress") screenStress.classList.remove("hidden");
         else if(screenId === "main") screenMain.classList.remove("hidden");
-        else console.error("Pantalla no válida:", screenId);
     }
 
-    // Auth submit - CORREGIDO Y CON DEPURACIÓN
-    document.getElementById("authForm").addEventListener("submit", (e) => {
+    // REGISTRO
+    document.getElementById("registerForm").addEventListener("submit", (e) => {
         e.preventDefault();
-        console.log("Formulario enviado. Modo login:", isLoginMode);
-        if(!isLoginMode) {
-            // Registro
-            const nombre = document.getElementById("regNombre").value.trim();
-            const apellido = document.getElementById("regApellido").value.trim();
-            const email = document.getElementById("regEmail").value.trim();
-            const pass = document.getElementById("regPass").value;
-            if(!nombre || !apellido || !email || !pass) {
-                alert("Completa todos los campos");
-                return;
-            }
-            if(pass.length < 8) {
-                alert("La contraseña debe tener mínimo 8 dígitos.");
-                return;
-            }
-            if(users.find(u => u.email === email)) {
-                alert("Correo ya registrado. Inicia sesión.");
-                return;
-            }
-            const newUser = { 
-                id: Date.now(), 
-                nombre, 
-                apellido, 
-                email, 
-                password: pass, 
-                tasks: [], 
-                history: [], 
-                avatar: null 
-            };
-            users.push(newUser);
-            saveUsers();
-            currentUserId = newUser.id;
+        const nombre = document.getElementById("regNombre").value.trim();
+        const apellido = document.getElementById("regApellido").value.trim();
+        const email = document.getElementById("regEmail").value.trim();
+        const pass = document.getElementById("regPass").value;
+        if (!nombre || !apellido || !email || !pass) {
+            alert("Completa todos los campos");
+            return;
+        }
+        if (pass.length < 8) {
+            alert("La contraseña debe tener mínimo 8 dígitos.");
+            return;
+        }
+        if (users.find(u => u.email === email)) {
+            alert("Correo ya registrado. Inicia sesión.");
+            return;
+        }
+        const newUser = {
+            id: Date.now(),
+            nombre, apellido, email,
+            password: pass,
+            tasks: [],
+            history: [],
+            avatar: null
+        };
+        users.push(newUser);
+        saveUsers();
+        currentUserId = newUser.id;
+        localStorage.setItem("currentUserId", currentUserId);
+        alert("✅ Registro exitoso");
+        showScreen("stress");
+    });
+
+    // LOGIN
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const email = document.getElementById("loginEmail").value.trim();
+        const pass = document.getElementById("loginPass").value;
+        const user = users.find(u => u.email === email && u.password === pass);
+        if (user) {
+            currentUserId = user.id;
             localStorage.setItem("currentUserId", currentUserId);
-            alert("Registro exitoso");
-            console.log("Registro exitoso. Mostrando pantalla stress");
-            showScreen("stress");
+            alert(`✨ Bienvenido ${user.nombre}`);
+            loadUserData();
+            showScreen("main");
+            renderMainAfterLogin();
         } else {
-            // Login
-            const loginEmail = document.getElementById("loginEmail").value.trim();
-            const loginPass = document.getElementById("loginPass").value;
-            const userFound = users.find(u => u.email === loginEmail && u.password === loginPass);
-            if(userFound) {
-                currentUserId = userFound.id;
-                localStorage.setItem("currentUserId", currentUserId);
-                alert(`Bienvenido ${userFound.nombre}`);
-                loadUserData(); 
-                showScreen("main"); 
-                renderMainAfterLogin();
-            } else {
-                alert("Credenciales incorrectas");
-            }
+            alert("❌ Correo o contraseña incorrectos");
         }
     });
 
     function checkAutoLogin() {
-        if(currentUserId && users.find(u=>u.id==currentUserId)) {
-            loadUserData(); 
-            showScreen("main"); 
-            renderMainAfterLogin(); 
+        if (currentUserId && users.find(u => u.id == currentUserId)) {
+            loadUserData();
+            showScreen("main");
+            renderMainAfterLogin();
             return true;
         }
         return false;
@@ -516,13 +515,13 @@
     let currentMonth = new Date().getMonth(), currentYear = new Date().getFullYear();
 
     function loadUserData() {
-        const user = users.find(u=>u.id==currentUserId);
-        if(user) {
+        const user = users.find(u => u.id == currentUserId);
+        if (user) {
             currentUserTasks = user.tasks || [];
             currentUserHistory = user.history || [];
             document.getElementById("sidebarUserName").innerText = `${user.nombre} ${user.apellido}`;
             document.getElementById("editUserNameSide").value = user.nombre;
-            if(user.avatar) document.getElementById("avatarSelector").innerHTML = `<img src="${user.avatar}" style="width:100%;border-radius:50%;">`;
+            if (user.avatar) document.getElementById("avatarSelector").innerHTML = `<img src="${user.avatar}" style="width:100%;border-radius:50%;">`;
             else document.getElementById("avatarSelector").innerHTML = `<i class="fas fa-user-circle"></i>`;
             renderHistorySidebar();
             cleanExpiredTasks();
@@ -531,11 +530,11 @@
 
     function cleanExpiredTasks() {
         const today = new Date();
-        today.setHours(0,0,0,0);
+        today.setHours(0, 0, 0, 0);
         let changed = false;
         currentUserTasks = currentUserTasks.filter(task => {
             const taskDate = new Date(task.date);
-            taskDate.setHours(0,0,0,0);
+            taskDate.setHours(0, 0, 0, 0);
             if (taskDate < today) {
                 addHistoryEntry(`⏰ Tarea "${task.name}" (${task.date}) expiró y fue eliminada automáticamente`);
                 changed = true;
@@ -551,52 +550,57 @@
     }
 
     function saveCurrentUserData() {
-        const idx = users.findIndex(u=>u.id==currentUserId);
-        if(idx!==-1) { users[idx].tasks = currentUserTasks; users[idx].history = currentUserHistory; saveUsers(); }
+        const idx = users.findIndex(u => u.id == currentUserId);
+        if (idx !== -1) {
+            users[idx].tasks = currentUserTasks;
+            users[idx].history = currentUserHistory;
+            saveUsers();
+        }
     }
     function addHistoryEntry(msg) {
         currentUserHistory.unshift({ msg, date: new Date().toLocaleString() });
-        if(currentUserHistory.length>20) currentUserHistory.pop();
-        saveCurrentUserData(); renderHistorySidebar();
+        if (currentUserHistory.length > 20) currentUserHistory.pop();
+        saveCurrentUserData();
+        renderHistorySidebar();
     }
     function renderHistorySidebar() {
         const histDiv = document.getElementById("historySidebar");
-        if(!currentUserHistory.length) { histDiv.innerHTML = "<p>Sin actividad reciente</p>"; return; }
-        histDiv.innerHTML = currentUserHistory.slice(0,8).map(h=>`<div class="historial-item">📌 ${h.msg}<br><small>${h.date}</small></div>`).join("");
+        if (!currentUserHistory.length) { histDiv.innerHTML = "<p>Sin actividad reciente</p>"; return; }
+        histDiv.innerHTML = currentUserHistory.slice(0, 8).map(h => `<div class="historial-item">📌 ${h.msg}<br><small>${h.date}</small></div>`).join("");
     }
 
     function renderCalendar() {
         let firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        let daysInMonth = new Date(currentYear, currentMonth+1, 0).getDate();
+        let daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         let grid = document.getElementById("calendarGrid");
         grid.innerHTML = "";
-        ["L","M","M","J","V","S","D"].forEach(d=>{ let c=document.createElement("div"); c.innerText=d; c.style.fontWeight="bold"; grid.appendChild(c); });
-        let startOffset = (firstDay+6)%7;
-        for(let i=0;i<startOffset;i++){ let e=document.createElement("div"); grid.appendChild(e); }
-        for(let d=1; d<=daysInMonth; d++){
-            let cell=document.createElement("div"); cell.classList.add("cal-dia"); cell.innerText=d;
+        ["L", "M", "M", "J", "V", "S", "D"].forEach(d => { let c = document.createElement("div"); c.innerText = d; c.style.fontWeight = "bold"; grid.appendChild(c); });
+        let startOffset = (firstDay + 6) % 7;
+        for (let i = 0; i < startOffset; i++) { let e = document.createElement("div"); grid.appendChild(e); }
+        for (let d = 1; d <= daysInMonth; d++) {
+            let cell = document.createElement("div"); cell.classList.add("cal-dia"); cell.innerText = d;
             let dateObj = new Date(currentYear, currentMonth, d);
-            if(selectedDate && selectedDate.toDateString()===dateObj.toDateString()) cell.classList.add("selected");
-            cell.addEventListener("click",()=>{
-                document.querySelectorAll(".cal-dia").forEach(el=>el.classList.remove("selected"));
+            if (selectedDate && selectedDate.toDateString() === dateObj.toDateString()) cell.classList.add("selected");
+            cell.addEventListener("click", () => {
+                document.querySelectorAll(".cal-dia").forEach(el => el.classList.remove("selected"));
                 cell.classList.add("selected");
                 selectedDate = dateObj;
                 renderTasksForDate(selectedDate);
             });
             grid.appendChild(cell);
         }
-        document.getElementById("monthYear").innerText = new Date(currentYear, currentMonth).toLocaleDateString('es',{month:'long',year:'numeric'});
+        document.getElementById("monthYear").innerText = new Date(currentYear, currentMonth).toLocaleDateString('es', { month: 'long', year: 'numeric' });
     }
     function renderTasksForDate(date) {
         let dateStr = date.toISOString().split('T')[0];
-        let tasks = currentUserTasks.filter(t=>t.date===dateStr);
+        let tasks = currentUserTasks.filter(t => t.date === dateStr);
         let container = document.getElementById("dayTasksList");
-        if(!tasks.length){ container.innerHTML="<p>📭 Sin tareas este día.</p>"; return; }
-        container.innerHTML = tasks.map(t=>`<div class="tarea-item" style="border-left-color:${t.color};"><div><strong>${t.name}</strong><br><span>📅 ${t.date}</span> ${t.notify==='si'?`🔔 Notif ${t.notifyDays} día(s) antes`:'🔕'}</div><button class="btn-small" data-id="${t.id}" style="background:#cfdfe8;">🗑️</button></div>`).join("");
-        document.querySelectorAll("[data-id]").forEach(btn=>{
-            btn.addEventListener("click",(e)=>{
+        if (!tasks.length) { container.innerHTML = "<p>📭 Sin tareas este día.</p>"; return; }
+        container.innerHTML = tasks.map(t => `<div class="tarea-item" style="border-left-color:${t.color};"><div><strong>${t.name}</strong><br><span>📅 ${t.date}</span> ${t.notify === 'si' ? `🔔 Notif ${t.notifyDays} día(s) antes` : '🔕'}</div><button class="btn-small" data-id="${t.id}" style="background:#cfdfe8;">🗑️</button></div>`).join("");
+        document.querySelectorAll("[data-id]").forEach(btn => {
+            btn.addEventListener("click", (e) => {
                 let id = parseInt(btn.getAttribute("data-id"));
-                currentUserTasks = currentUserTasks.filter(t=>t.id!==id);
+                currentUserTasks = currentUserTasks.filter(t => t.id !== id);
                 saveCurrentUserData();
                 addHistoryEntry(`🗑️ Tarea eliminada manualmente`);
                 renderTasksForDate(selectedDate);
@@ -605,47 +609,47 @@
         });
     }
     function addTask(name, date, color, notify, notifyDays) {
-        if(!name||!date){ alert("Nombre y fecha requeridos"); return false; }
+        if (!name || !date) { alert("Nombre y fecha requeridos"); return false; }
         let newId = Date.now();
-        let newTask = { id:newId, name, date, color, notify, notifyDays: parseInt(notifyDays), notifiedFlag:false, createdAt:new Date().toISOString() };
+        let newTask = { id: newId, name, date, color, notify, notifyDays: parseInt(notifyDays), notifiedFlag: false, createdAt: new Date().toISOString() };
         currentUserTasks.push(newTask);
         saveCurrentUserData();
         addHistoryEntry(`📌 Tarea agregada: "${name}" para ${date} (Notif ${notifyDays} días antes)`);
         renderTasksForDate(selectedDate);
         renderCalendar();
-        if(notify==='si') scheduleNotification(newTask);
+        if (notify === 'si') scheduleNotification(newTask);
         return true;
     }
     function scheduleNotification(task) {
-        if(Notification.permission !== "granted") return;
+        if (Notification.permission !== "granted") return;
         let dueDate = new Date(task.date);
         let notifyDate = new Date(dueDate);
         notifyDate.setDate(dueDate.getDate() - task.notifyDays);
         let now = new Date();
         let timeDiff = notifyDate.getTime() - now.getTime();
-        if(timeDiff > 0) {
+        if (timeDiff > 0) {
             setTimeout(() => {
                 new Notification("📚 Recordatorio anticipado", { body: `"${task.name}" vence en ${task.notifyDays} día(s) (${task.date})` });
                 addHistoryEntry(`🔔 Notificación enviada: "${task.name}" (${task.notifyDays} días antes)`);
             }, timeDiff);
         }
     }
-    function requestNotifPerm() { if("Notification" in window && Notification.permission !== "granted") Notification.requestPermission(); }
+    function requestNotifPerm() { if ("Notification" in window && Notification.permission !== "granted") Notification.requestPermission(); }
 
     // Síntomas combinados
     const symptomDB = {
-        dolor_cabeza: { nom:"Dolor de cabeza", explicacion:"El estrés académico genera tensión muscular en cuello y hombros, provocando cefaleas tensionales.", calmarlo:"Aplica compresas frías, estira el cuello y toma descansos visuales.", respiracion:"🌊 Respiración diafragmática: inhala 4s, sostén 2s, exhala 6s (8 ciclos).", consejo:"📌 Usa la regla 20-20-20: cada 20 min mira a 20 pies por 20 segundos." },
-        insomnio: { nom:"Insomnio", explicacion:"La preocupación por exámenes y plazos activa la mente en la noche, impidiendo conciliar el sueño.", calmarlo:"Establece una rutina de sueño fija y evita pantallas 1 hora antes.", respiracion:"🌙 Técnica 4-7-8: inhala 4s, retén 7s, exhala 8s. 6 ciclos.", consejo:"📌 Escribe tus pendientes antes de dormir para 'descargar' la mente." },
-        irritabilidad: { nom:"Irritabilidad", explicacion:"La acumulación de estrés reduce tu tolerancia a frustraciones, volviéndote más reactivo.", calmarlo:"Practica pausas de 5 minutos entre tareas y escucha música relajante.", respiracion:"😌 Respiración alterna: tapa fosa derecha, inhala izquierda 4s, cambia y exhala 4s (5 min).", consejo:"📌 Sal a caminar 10 minutos cuando sientas ira." },
-        concentracion: { nom:"Falta de concentración", explicacion:"El cortisol elevado afecta la memoria de trabajo y la capacidad de foco.", calmarlo:"Divide el estudio en bloques de 25 min (Pomodoro).", respiracion:"🎯 Box breathing: inhala 4s, retén 4s, exhala 4s, retén 4s (6 ciclos).", consejo:"📌 Elimina distracciones: usa apps de bloqueo de redes." },
-        desmotivacion: { nom:"Desmotivación", explicacion:"El agotamiento emocional por sobrecarga te hace sentir que nada vale la pena.", calmarlo:"Celebra pequeños logros y cambia de ambiente de estudio.", respiracion:"💪 Respiración energizante: inhala 3s, exhala con fuerza 1s (10 veces).", consejo:"📌 Escribe 3 cosas buenas que lograste hoy." },
-        ansiedad: { nom:"Ansiedad", explicacion:"Pensamientos catastróficos sobre el rendimiento generan palpitaciones y nerviosismo.", calmarlo:"Practica mindfulness y acepta que no todo es perfecto.", respiracion:"🌬️ 5-5-5: inhala 5s, sostén 5s, exhala 5s (5 minutos).", consejo:"📌 Haz una lista de 'lo que sí controlas' vs 'lo que no'." }
+        dolor_cabeza: { nom: "Dolor de cabeza", explicacion: "El estrés académico genera tensión muscular en cuello y hombros, provocando cefaleas tensionales.", calmarlo: "Aplica compresas frías, estira el cuello y toma descansos visuales.", respiracion: "🌊 Respiración diafragmática: inhala 4s, sostén 2s, exhala 6s (8 ciclos).", consejo: "📌 Usa la regla 20-20-20: cada 20 min mira a 20 pies por 20 segundos." },
+        insomnio: { nom: "Insomnio", explicacion: "La preocupación por exámenes y plazos activa la mente en la noche, impidiendo conciliar el sueño.", calmarlo: "Establece una rutina de sueño fija y evita pantallas 1 hora antes.", respiracion: "🌙 Técnica 4-7-8: inhala 4s, retén 7s, exhala 8s. 6 ciclos.", consejo: "📌 Escribe tus pendientes antes de dormir para 'descargar' la mente." },
+        irritabilidad: { nom: "Irritabilidad", explicacion: "La acumulación de estrés reduce tu tolerancia a frustraciones, volviéndote más reactivo.", calmarlo: "Practica pausas de 5 minutos entre tareas y escucha música relajante.", respiracion: "😌 Respiración alterna: tapa fosa derecha, inhala izquierda 4s, cambia y exhala 4s (5 min).", consejo: "📌 Sal a caminar 10 minutos cuando sientas ira." },
+        concentracion: { nom: "Falta de concentración", explicacion: "El cortisol elevado afecta la memoria de trabajo y la capacidad de foco.", calmarlo: "Divide el estudio en bloques de 25 min (Pomodoro).", respiracion: "🎯 Box breathing: inhala 4s, retén 4s, exhala 4s, retén 4s (6 ciclos).", consejo: "📌 Elimina distracciones: usa apps de bloqueo de redes." },
+        desmotivacion: { nom: "Desmotivación", explicacion: "El agotamiento emocional por sobrecarga te hace sentir que nada vale la pena.", calmarlo: "Celebra pequeños logros y cambia de ambiente de estudio.", respiracion: "💪 Respiración energizante: inhala 3s, exhala con fuerza 1s (10 veces).", consejo: "📌 Escribe 3 cosas buenas que lograste hoy." },
+        ansiedad: { nom: "Ansiedad", explicacion: "Pensamientos catastróficos sobre el rendimiento generan palpitaciones y nerviosismo.", calmarlo: "Practica mindfulness y acepta que no todo es perfecto.", respiracion: "🌬️ 5-5-5: inhala 5s, sostén 5s, exhala 5s (5 minutos).", consejo: "📌 Haz una lista de 'lo que sí controlas' vs 'lo que no'." }
     };
     let selectedSymptoms = [];
     function renderCombinedSymptoms() {
-        if(selectedSymptoms.length===0){ document.getElementById("resultSymptoms").innerHTML="<p>💡 Selecciona al menos un síntoma.</p>"; return; }
-        let html = `<strong>🧘 Síntomas seleccionados (${selectedSymptoms.length}):</strong> ${selectedSymptoms.map(s=>symptomDB[s].nom).join(", ")}<br>`;
-        selectedSymptoms.forEach(sym=>{
+        if (selectedSymptoms.length === 0) { document.getElementById("resultSymptoms").innerHTML = "<p>💡 Selecciona al menos un síntoma.</p>"; return; }
+        let html = `<strong>🧘 Síntomas seleccionados (${selectedSymptoms.length}):</strong> ${selectedSymptoms.map(s => symptomDB[s].nom).join(", ")}<br>`;
+        selectedSymptoms.forEach(sym => {
             let data = symptomDB[sym];
             html += `<div style="margin-top:1rem; border-top:1px solid #b9dfec; padding-top:0.8rem;">
                         <b>📖 ${data.nom}</b>
@@ -658,53 +662,73 @@
         document.getElementById("resultSymptoms").innerHTML = html;
     }
     function updateBubbleSelection() {
-        document.querySelectorAll(".bubble").forEach(b=>{
+        document.querySelectorAll(".bubble").forEach(b => {
             let sym = b.getAttribute("data-symptom");
-            if(selectedSymptoms.includes(sym)) b.classList.add("selected");
+            if (selectedSymptoms.includes(sym)) b.classList.add("selected");
             else b.classList.remove("selected");
         });
     }
-    document.querySelectorAll(".bubble").forEach(b=>{
-        b.addEventListener("click",()=>{
+    document.querySelectorAll(".bubble").forEach(b => {
+        b.addEventListener("click", () => {
             let sym = b.getAttribute("data-symptom");
-            if(selectedSymptoms.includes(sym)) selectedSymptoms = selectedSymptoms.filter(s=>s!==sym);
+            if (selectedSymptoms.includes(sym)) selectedSymptoms = selectedSymptoms.filter(s => s !== sym);
             else selectedSymptoms.push(sym);
             updateBubbleSelection();
         });
     });
     document.getElementById("combineSymptomsBtn")?.addEventListener("click", renderCombinedSymptoms);
-    document.getElementById("clearSymptomsBtn")?.addEventListener("click",()=>{ selectedSymptoms=[]; updateBubbleSelection(); document.getElementById("resultSymptoms").innerHTML="<p>💡 Selecciona síntomas y presiona 'Ver información combinada'.</p>"; });
+    document.getElementById("clearSymptomsBtn")?.addEventListener("click", () => { selectedSymptoms = []; updateBubbleSelection(); document.getElementById("resultSymptoms").innerHTML = "<p>💡 Selecciona síntomas y presiona 'Ver información combinada'.</p>"; });
 
     // Eventos generales
     function renderMainAfterLogin() { renderCalendar(); renderTasksForDate(new Date()); loadUserData(); cleanExpiredTasks(); }
-    document.getElementById("goToMainBtn")?.addEventListener("click",()=>{ showScreen("main"); renderMainAfterLogin(); });
-    document.getElementById("menuIcon")?.addEventListener("click",()=>{ document.getElementById("sidebar").classList.add("open"); document.getElementById("overlay").classList.add("show"); });
-    document.getElementById("closeSidebar")?.addEventListener("click",()=>{ document.getElementById("sidebar").classList.remove("open"); document.getElementById("overlay").classList.remove("show"); });
-    document.getElementById("overlay")?.addEventListener("click",()=>{ document.getElementById("sidebar").classList.remove("open"); document.getElementById("overlay").classList.remove("show"); });
-    document.getElementById("prevMonth")?.addEventListener("click",()=>{ currentMonth--; if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(); renderTasksForDate(selectedDate); });
-    document.getElementById("nextMonth")?.addEventListener("click",()=>{ currentMonth++; if(currentMonth>11){currentMonth=0;currentYear++;} renderCalendar(); renderTasksForDate(selectedDate); });
-    document.getElementById("openTaskBtn")?.addEventListener("click",()=>{ document.getElementById("taskModal").style.display="flex"; document.getElementById("taskDateModal").value=selectedDate.toISOString().split('T')[0]; });
-    document.getElementById("closeModalBtn")?.addEventListener("click",()=>{ document.getElementById("taskModal").style.display="none"; });
-    document.getElementById("confirmTaskBtn")?.addEventListener("click",()=>{
+    document.getElementById("goToMainBtn")?.addEventListener("click", () => { showScreen("main"); renderMainAfterLogin(); });
+    document.getElementById("menuIcon")?.addEventListener("click", () => { document.getElementById("sidebar").classList.add("open"); document.getElementById("overlay").classList.add("show"); });
+    document.getElementById("closeSidebar")?.addEventListener("click", () => { document.getElementById("sidebar").classList.remove("open"); document.getElementById("overlay").classList.remove("show"); });
+    document.getElementById("overlay")?.addEventListener("click", () => { document.getElementById("sidebar").classList.remove("open"); document.getElementById("overlay").classList.remove("show"); });
+    document.getElementById("prevMonth")?.addEventListener("click", () => { currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; } renderCalendar(); renderTasksForDate(selectedDate); });
+    document.getElementById("nextMonth")?.addEventListener("click", () => { currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; } renderCalendar(); renderTasksForDate(selectedDate); });
+    document.getElementById("openTaskBtn")?.addEventListener("click", () => { document.getElementById("taskModal").style.display = "flex"; document.getElementById("taskDateModal").value = selectedDate.toISOString().split('T')[0]; });
+    document.getElementById("closeModalBtn")?.addEventListener("click", () => { document.getElementById("taskModal").style.display = "none"; });
+    document.getElementById("confirmTaskBtn")?.addEventListener("click", () => {
         let name = document.getElementById("taskNameModal").value;
         let date = document.getElementById("taskDateModal").value;
         let color = document.getElementById("taskColorModal").value;
         let notify = document.getElementById("taskNotifyModal").value;
         let notifyDays = document.getElementById("taskNotifyDaysModal").value;
-        if(addTask(name,date,color,notify,notifyDays)){ document.getElementById("taskModal").style.display="none"; document.getElementById("taskNameModal").value=""; }
+        if (addTask(name, date, color, notify, notifyDays)) { document.getElementById("taskModal").style.display = "none"; document.getElementById("taskNameModal").value = ""; }
     });
-    document.getElementById("avatarSelector")?.addEventListener("click",()=>{ document.getElementById("avatarUpload").click(); });
-    document.getElementById("avatarUpload")?.addEventListener("change",(e)=>{
-        let file=e.target.files[0];
-        if(file){ let reader=new FileReader(); reader.onload=(ev)=>{ let idx=users.findIndex(u=>u.id==currentUserId); if(idx!==-1){ users[idx].avatar=ev.target.result; saveUsers(); loadUserData(); addHistoryEntry("🖼️ Foto actualizada"); } }; reader.readAsDataURL(file); }
+    document.getElementById("avatarSelector")?.addEventListener("click", () => { document.getElementById("avatarUpload").click(); });
+    document.getElementById("avatarUpload")?.addEventListener("change", (e) => {
+        let file = e.target.files[0];
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = (ev) => {
+                let idx = users.findIndex(u => u.id == currentUserId);
+                if (idx !== -1) {
+                    users[idx].avatar = ev.target.result;
+                    saveUsers();
+                    loadUserData();
+                    addHistoryEntry("🖼️ Foto actualizada");
+                }
+            };
+            reader.readAsDataURL(file);
+        }
     });
-    document.getElementById("saveNameSide")?.addEventListener("click",()=>{
-        let newName=document.getElementById("editUserNameSide").value.trim();
-        if(newName){ let idx=users.findIndex(u=>u.id==currentUserId); if(idx!==-1){ users[idx].nombre=newName; saveUsers(); loadUserData(); addHistoryEntry(`✏️ Nombre cambiado a ${newName}`); } }
+    document.getElementById("saveNameSide")?.addEventListener("click", () => {
+        let newName = document.getElementById("editUserNameSide").value.trim();
+        if (newName) {
+            let idx = users.findIndex(u => u.id == currentUserId);
+            if (idx !== -1) {
+                users[idx].nombre = newName;
+                saveUsers();
+                loadUserData();
+                addHistoryEntry(`✏️ Nombre cambiado a ${newName}`);
+            }
+        }
     });
     requestNotifPerm();
-    if(!checkAutoLogin()){ showScreen("auth"); updateAuthUI(); }
-    setInterval(()=>{ cleanExpiredTasks(); }, 60000);
+    if (!checkAutoLogin()) { showScreen("auth"); }
+    setInterval(() => { cleanExpiredTasks(); }, 60000);
 </script>
 </body>
 </html>
